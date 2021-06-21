@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:projeto_principal/pages/home/home_page.dart';
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -8,6 +6,8 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+  final _formKey = GlobalKey<FormState>();
+  var email = '';
   bool _rememberMe = false;
   @override
   Widget build(BuildContext context) {
@@ -58,9 +58,6 @@ class _LoginScreenState extends State<LoginScreen> {
                   _buildLoginBox('E-mail', 'Insira seu e-mail', Icons.email,
                       isPassword: false, isEmail: TextInputType.emailAddress),
                   SizedBox(height: 30),
-                  _buildLoginBox('Senha', 'Insira sua senha', Icons.lock,
-                      isPassword: true),
-                  _buildForgotPassword(),
                   _buildRemember(),
                   _buildLoginButton(),
                   _buildSignUp(),
@@ -73,75 +70,70 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  Column _buildSignUp() {
+  Column _buildLoginBox(
+    String title,
+    String boxText,
+    IconData iconBox, {
+    bool isPassword,
+    TextInputType isEmail,
+  }) {
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          ' OU ',
-          style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-        SizedBox(height: 20),
-        Container(
-            child: FlatButton(
-          onPressed: () => print('Função de criar conta'),
-          child: Text(
-            'Criar conta',
-            style: TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-              fontFamily: 'OpenSans',
-            ),
-          ),
-        ))
-      ],
-    );
-  }
-
-  Container _buildLoginButton() {
-    return Container(
-      width: double.infinity,
-      padding: EdgeInsets.symmetric(vertical: 25),
-      child: ElevatedButton(
-        style: ElevatedButton.styleFrom(
-          primary: Colors.white, // background
-          onPrimary: Colors.red, // foreground
-          elevation: 5,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(30),
-          ),
-        ),
-        onPressed: () => Get.to(() => HomePage()),
-        child: Text('Login',
-            style: TextStyle(
-              color: Colors.blue,
-              letterSpacing: 1.5,
-              fontSize: 18,
-              fontFamily: 'OpenSans',
-            )),
-      ),
-    );
-  }
-
-  Container _buildForgotPassword() {
-    return Container(
-      alignment: Alignment.centerRight,
-      child: TextButton(
-        style: TextButton.styleFrom(
-          primary: Colors.blue,
-        ),
-        onPressed: () => debugPrint('Função de esquecer a senha'),
-        child: Text(
-          'Esqueceu a senha?',
+          title,
           style: TextStyle(
             color: Colors.white,
             fontWeight: FontWeight.bold,
             fontFamily: 'OpenSans',
           ),
         ),
-      ),
+        SizedBox(height: 10),
+        Form(
+          key: _formKey,
+          child: Container(
+            alignment: Alignment.centerLeft,
+            decoration: BoxDecoration(
+              color: Color(0xFF6CA8F1),
+              borderRadius: BorderRadius.circular(10.0),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black12,
+                  blurRadius: 6.0,
+                  offset: Offset(0, 2),
+                ),
+              ],
+            ),
+            height: 60,
+            child: TextFormField(
+                validator: (text) {
+                  if (text == null || text.isEmpty) {
+                    return 'texto é obrigatório';
+                  }
+                  return null;
+                },
+                obscureText: isPassword,
+                keyboardType: isEmail,
+                style: TextStyle(color: Colors.white),
+                decoration: InputDecoration(
+                  border: InputBorder.none,
+                  contentPadding: EdgeInsets.only(top: 14),
+                  prefixIcon: Icon(
+                    iconBox,
+                    color: Colors.white,
+                  ),
+                  hintText: boxText,
+                  hintStyle: TextStyle(
+                    color: Colors.white54,
+                    fontFamily: 'OpenSans',
+                  ),
+                ),
+                onChanged: (text) {
+                  email = text;
+                }),
+          ),
+        ),
+      ],
     );
   }
 
@@ -175,58 +167,65 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  Column _buildLoginBox(
-    String title,
-    String boxText,
-    IconData iconBox, {
-    bool isPassword,
-    TextInputType isEmail,
-  }) {
+  Container _buildLoginButton() {
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.symmetric(vertical: 25),
+      child: ElevatedButton(
+        style: ElevatedButton.styleFrom(
+          primary: Colors.white, // background
+          onPrimary: Colors.red, // foreground
+          elevation: 5,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(30),
+          ),
+        ),
+        onPressed: () {
+          final isValid = _formKey.currentState.validate();
+          if (isValid) {
+            showDialog(
+                context: context,
+                builder: (context) {
+                  return AlertDialog(
+                    title: Text('Olá $email'),
+                  );
+                });
+          }
+        },
+        child: Text('Login',
+            style: TextStyle(
+              color: Colors.blue,
+              letterSpacing: 1.5,
+              fontSize: 18,
+              fontFamily: 'OpenSans',
+            )),
+      ),
+    );
+  }
+
+  Column _buildSignUp() {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          title,
+          ' OU ',
           style: TextStyle(
             color: Colors.white,
-            fontWeight: FontWeight.bold,
-            fontFamily: 'OpenSans',
+            fontWeight: FontWeight.w500,
           ),
         ),
-        SizedBox(height: 10),
+        SizedBox(height: 20),
         Container(
-          alignment: Alignment.centerLeft,
-          decoration: BoxDecoration(
-            color: Color(0xFF6CA8F1),
-            borderRadius: BorderRadius.circular(10.0),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black12,
-                blurRadius: 6.0,
-                offset: Offset(0, 2),
-              ),
-            ],
-          ),
-          height: 60,
-          child: TextField(
-            obscureText: isPassword,
-            keyboardType: isEmail,
-            style: TextStyle(color: Colors.white),
-            decoration: InputDecoration(
-              border: InputBorder.none,
-              contentPadding: EdgeInsets.only(top: 14),
-              prefixIcon: Icon(
-                iconBox,
-                color: Colors.white,
-              ),
-              hintText: boxText,
-              hintStyle: TextStyle(
-                color: Colors.white54,
-                fontFamily: 'OpenSans',
-              ),
+            child: ElevatedButton(
+          onPressed: () => print('Função de criar conta'),
+          child: Text(
+            'Criar conta',
+            style: TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+              fontFamily: 'OpenSans',
             ),
           ),
-        ),
+        ))
       ],
     );
   }
